@@ -18,7 +18,7 @@ app.use("/ping",(req,res)=>{
     res.send("Server is set up and running")
 })
 
-app.use("api/users",userrouters)
+app.use("/api/users",userrouters)
 
 export default app;
 

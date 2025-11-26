@@ -19,6 +19,7 @@
     phonenumber:{
         type:Number,
         required:[true,"Phone Number is required"],
+        maxlength:[10,"Phone Number should not be more than 10 digits"],
         unique:true,
         trim:true
     },
