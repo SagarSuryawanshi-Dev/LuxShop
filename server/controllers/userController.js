@@ -1,6 +1,12 @@
 import User from "../models/userModel.js";
 
 
+const cookieOption = {
+    maxAge : 7 * 24 * 60 * 60 * 1000,
+    httponly:true,
+
+}
+
 export const registerUser = async(req,res)=>{
     
     try {
@@ -34,8 +40,11 @@ export const registerUser = async(req,res)=>{
                 message:"User Registration Failed"
                })  
           }
-          await user.save();
+        //   await user.save();
           user.password = undefined;
+
+          const token = user.jwtToken();
+          res.cookie("token",token, cookieOption)
 
           return res.status(201).json({
             success:true,
@@ -70,8 +79,26 @@ export const loginUser = async(req,res) => {
                 message: "User not Found"
             })
         }
+        const isMatch = await user.comparePassword(password);
+        if(!isMatch){
+            return res.status(401).json({
+                success:false,
+                message:"Invalid Email or Password"
+            })
+        }
+        user.password = undefined;
+        return res.status(200).json({
+            success:true,
+            message:"login Successfully",
+            user
+        })
 
     } catch (error) {
+        return res.starus(400).json({
+            success:false,
+            message:error.message
+        })
         
     }
 }
+

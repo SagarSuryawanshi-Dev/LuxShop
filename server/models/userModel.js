@@ -27,8 +27,7 @@
         type:String,
         required:[true,"Password is required"],
         minlength:[6,"Password should be at least 6 characters"],
-        trim:true,
-        select:false
+        trim:true
     },
     role:{
         type:String,
@@ -39,17 +38,38 @@
     
  },{timestamp:true})
 
+
+ //  bcrypt Password Hashing method
+userSchema.pre('save',async function (next){
+    if(!this.isModified('password')){
+        return next();
+    }
+    this.password =await bcrypt.hash(this.password, 10);
+    
+})
+
+// compare bcrypt password method
+userSchema.methods.comparePassword = async function (plainTextPassword){
+    return await bcrypt.compare(plainTextPassword,this.password);
+}
+
+// jSON web Token genration method
+
+userSchema.methods.generateJWTToken = function (){
+    const token = jwt.sign({
+        _id:this.id,
+        role:this.role
+    },
+    process.env.JWT_SECRET,
+    {expiresIn:'24h'}
+)};
+
+
  const User = mongoose.model('User',userSchema);
  export default User;
 
 
 
 
-//  bcrypt Password Hashing method
-userSchema.pre('save',async function (next){
-    if(!this.isModified('password')){
-        return next();
-    }
-    this.password = bcrypt.hash(this.password, 10);
-})
+
 
