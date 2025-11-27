@@ -1,10 +1,11 @@
 import User from "../models/userModel.js";
 
 
+
 const cookieOption = {
     maxAge : 7 * 24 * 60 * 60 * 1000,
     httponly:true,
-
+    secure:false, //true in production
 }
 
 export const registerUser = async(req,res)=>{
@@ -42,9 +43,6 @@ export const registerUser = async(req,res)=>{
           }
         //   await user.save();
           user.password = undefined;
-
-          const token = user.jwtToken();
-          res.cookie("token",token, cookieOption)
 
           return res.status(201).json({
             success:true,
@@ -86,19 +84,43 @@ export const loginUser = async(req,res) => {
                 message:"Invalid Email or Password"
             })
         }
+        const accessToken = user.accessToken()
+        const refreshToken = user.refreshToken()
+        // await user.save()
+        res.cookie("refreshToken", refreshToken, cookieOption)
         user.password = undefined;
         return res.status(200).json({
             success:true,
             message:"login Successfully",
+            accessToken,
             user
         })
 
     } catch (error) {
-        return res.starus(400).json({
+        return res.status(400).json({
             success:false,
             message:error.message
         })
         
+    }
+}
+
+export const logoutUser = async(req,res) => {
+    try {
+       
+        res.clearCookie("refreshToken",cookieOption)
+
+        return res.status(200).json({
+            success:true,
+            message:"Logout Successfully"
+        })
+        
+
+    } catch (error) {
+        return res.status(500).json({
+            success:false,
+            message:error.message
+        })
     }
 }
 
