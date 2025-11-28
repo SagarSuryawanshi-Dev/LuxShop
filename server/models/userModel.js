@@ -71,7 +71,7 @@ userSchema.methods.refreshToken = function () {
   return jwt.sign(
     { _id: this._id, role: this.role },
     process.env.REFRESH_TOKEN,
-    { expiresIn: "2d" }
+    { expiresIn: "7d" }
   );
 };
 
