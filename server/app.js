@@ -3,6 +3,7 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import cookieParser from 'cookie-parser'
 import userrouters from './router/userRoutes.js'
+import productroutes from './router/productRoutes.js'
 
 
 
@@ -19,6 +20,7 @@ app.use("/ping",(req,res)=>{
 })
 
 app.use("/api/users",userrouters)
+app.use("/api/products",productroutes)
 
 export default app;
 
