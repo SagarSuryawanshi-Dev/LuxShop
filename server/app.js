@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import cookieParser from 'cookie-parser'
 import userrouters from './router/userRoutes.js'
 import productroutes from './router/productRoutes.js'
+import categoryroutes from './router/categoryRoutes.js'
 
 
 
@@ -21,6 +22,8 @@ app.use("/ping",(req,res)=>{
 
 app.use("/api/users",userrouters)
 app.use("/api/products",productroutes)
+app.use("/api/category",categoryroutes)
+
 
 export default app;
 

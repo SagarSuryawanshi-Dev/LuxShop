@@ -3,39 +3,41 @@ import mongoose from "mongoose";
 const productSchema = new mongoose.Schema({
   productName: {
     type: String,
-    required: [true, "Product Name is Required"],
+    required: true,
     trim: true,
+  },
+  slug: {
+    type: String,
+    unique: true,
+    index: true,
   },
   description: {
     type: String,
-    required: [true, "Product Description is required"],
+    required: true,
     trim: true,
   },
   price: {
     type: Number,
-    required: [true, "Product Price is required"],
-    trim: true,
+    required: true,
     min: 0,
   },
   category: {
-    type: String,
-    required: [true, "Product Category is required"],
-    trim: true,
-  },
-  rating: {
-    type: Number,
-    default: 0,
-    required:[true,"Product Rating is Required"],
-    trim: true,
-  },
-  Stock: {
-    type: Number,
-    min: 0,
-    trim: true,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Category",
+    required: true,
   },
   brand: {
     type: String,
     trim: true,
+  },
+  stock: {
+    type: Number,
+    min: 0,
+    default: 0,
+  },
+  rating: {
+    type: Number,
+    default: 0,
   },
   images: [
     {
@@ -43,26 +45,20 @@ const productSchema = new mongoose.Schema({
       url: { type: String },
     }
   ],
-
-  revewis: [
+  reviews: [
     {
-      user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-
-      },
-      name: { type: String, required: true },
-      rating: { type: Number, required: true },
-      comment: { type: String, required: true },
+      user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      name: { type: String },
+      rating: { type: Number },
+      comment: { type: String },
     }
   ],
-  cratedBy:{
-    type:mongoose.Schema.Types.ObjectId,
+  createdBy:{
+    type: mongoose.Schema.Types.ObjectId,
     ref:"User"
   }
 },
-{timeStamps:true});
+{ timestamps: true });
 
-
-const product = mongoose.model("Product", productSchema);
-export default product;
+const Product = mongoose.model("Product", productSchema);
+export default Product;

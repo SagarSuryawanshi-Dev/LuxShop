@@ -1,4 +1,5 @@
 import product from "../models/productModel.js";
+import Category from "../models/categoryModels.js";
 
 export const createProduct = async (req, res) => {
   try {
@@ -11,12 +12,19 @@ export const createProduct = async (req, res) => {
       });
     }
 
+    const categoryExists = await Category.findById(category);
+    if(!categoryExists){
+      return res.status(404).json({
+        success:false,
+        message:"Category ID Not Found"
+      })
+    }
     const newProduct = await product.create({
       productName,
       description,
       price,
-      rating,
-      category,
+      rating: rating ?? 0,
+      category
     });
     return res.status(201).json({
       success: true,
