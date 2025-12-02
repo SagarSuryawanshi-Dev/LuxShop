@@ -1,14 +1,18 @@
 import Category from "../models/categoryModels.js";
+import slugify from "slugify";
 
 export const createCategory = async (req, res) => {
   try {
-    const { name, parent } = req.body;
+    let { name, parent } = req.body;
 
     if (!name) {
       return res.status(400).json({ success: false, message: "Name is required" });
     }
 
-    const categoryExists = await Category.findOne({ name });
+     name = name.trim();
+    const slug = slugify(name, { lower: true, strict: true });
+
+    const categoryExists = await Category.findOne({ slug });
     if (categoryExists) {
       return res.status(400).json({ success: false, message: "Category already exists" });
     }
@@ -22,6 +26,7 @@ export const createCategory = async (req, res) => {
 
     const newCategory = new Category({
       name,
+      slug,
       parent: parent || null
     });
 
