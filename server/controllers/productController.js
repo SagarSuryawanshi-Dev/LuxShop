@@ -1,5 +1,6 @@
 import product from "../models/productModel.js";
 import Category from "../models/categoryModels.js";
+import Product from "../models/productModel.js";
 
 export const createProduct = async (req, res) => {
   try {
@@ -109,7 +110,7 @@ export const deleteProduct = async (req, res) => {
 
 export const categoryProduct = async (req, res) => {
   try {
-    const  categoryId  = req.params.id;
+    const categoryId = req.params.id;
     const category = await Category.findById(categoryId);
 
     if (!category) {
@@ -135,3 +136,73 @@ export const categoryProduct = async (req, res) => {
     });
   }
 };
+
+export const filterProduct = async (req, res) => {
+  try {
+    let {
+      category,
+      brand,
+      rating,
+      minPrice,
+      maxPrice,
+      sort,
+      search,
+      page = 1,
+      limit = 10,
+    } = req.query;
+
+    // Build filter object
+    const filterObject = {};
+
+    if (category) filterObject.category = category;
+    if (brand) filterObject.brand = brand;
+    if (rating) filterObject.rating = { $gte: rating };
+
+    if (minPrice || maxPrice) {
+      filterObject.price = {};
+      if (minPrice) filterObject.price.$gte = Number(minPrice);
+      if (maxPrice) filterObject.price.$lte = Number(maxPrice);
+    }
+
+    // Search text (case insensitive)
+    if (search) {
+      filterObject.productName = { $regex: search, $options: "i" };
+    }
+
+    // Sorting
+    let sortObject = {};
+    if (sort === "price_low") sortObject.price = 1;
+    if (sort === "price_high") sortObject.price = -1;
+    if (sort === "rating_high") sortObject.rating = -1;
+    if (sort === "rating_low") sortObject.rating = 1;
+    if (sort === "newest") sortObject.createdAt = -1;
+
+    // Pagination
+    page = Number(page);
+    limit = Number(limit);
+    const skip = (page - 1) * limit;
+
+    // Fetch products from DB
+    const products = await Product.find(filterObject)
+      
+
+    const totalProducts = await Product.countDocuments(filterObject);
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    return res.status(200).json({
+      success: true,
+      message: "Products fetched",
+      // filterUsed: filterObject,
+      // page,
+      // limit,
+      // totalProducts,
+      // totalPages,
+      count: products.length,
+      products,
+    });
+  } catch (error) {
+    console.error("Error in getProducts:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
