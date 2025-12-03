@@ -25,7 +25,7 @@ export const createProduct = async (req, res) => {
       description,
       price,
       category,
-      brand,
+      brand
     });
     return res.status(201).json({
       success: true,
