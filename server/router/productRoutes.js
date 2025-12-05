@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { upload } from "../middleware/multer.middleware.js";
 import {
   createProduct,
   getAllProducts,
@@ -9,7 +10,7 @@ import {
 } from "../controllers/productController.js";
 const router = Router();
 
-router.post("/createproduct", createProduct);
+router.post("/createproduct",upload.single("image"), createProduct);
 router.get("/allproducts", getAllProducts);
 router.get("/product/:id", getProduct);
 router.delete("/deleteproduct/:id", deleteProduct);

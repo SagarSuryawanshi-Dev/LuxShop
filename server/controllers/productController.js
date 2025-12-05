@@ -1,10 +1,13 @@
-import product from "../models/productModel.js";
 import Category from "../models/categoryModels.js";
 import Product from "../models/productModel.js";
+import uploadOnCLoudinary from "../utlis/cloudinary.js";
 
 export const createProduct = async (req, res) => {
   try {
     const { productName, description, price, category, brand } = req.body;
+
+    console.log("Body", req.body);
+    console.log("reqFile", req.file);
 
     if (!productName || !description || !price || !category || !brand) {
       return res.status(400).json({
@@ -13,6 +16,23 @@ export const createProduct = async (req, res) => {
       });
     }
 
+    let imageUrl; // declare outside
+    if (req.file) {
+      const localFilePath = req.file.path;
+      const uploadimage = await uploadOnCLoudinary(localFilePath);
+
+      if (!uploadimage) {
+        return res.status(500).json({
+          success: false,
+          message: "Image Upload Failed",
+        });
+      }
+
+      imageUrl = uploadimage.secure_url;
+    }
+
+    console.log("Uploaded_Image", imageUrl);
+
     const categoryExists = await Category.findById(category);
     if (!categoryExists) {
       return res.status(404).json({
@@ -20,12 +40,13 @@ export const createProduct = async (req, res) => {
         message: "Category ID Not Found",
       });
     }
-    const newProduct = await product.create({
+    const newProduct = await Product.create({
       productName,
       description,
       price,
       category,
-      brand
+      brand,
+      image: imageUrl,
     });
     return res.status(201).json({
       success: true,
@@ -183,8 +204,7 @@ export const filterProduct = async (req, res) => {
     const skip = (page - 1) * limit;
 
     // Fetch products from DB
-    const products = await Product.find(filterObject)
-      
+    const products = await Product.find(filterObject);
 
     const totalProducts = await Product.countDocuments(filterObject);
     const totalPages = Math.ceil(totalProducts / limit);
@@ -205,4 +225,3 @@ export const filterProduct = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
-
